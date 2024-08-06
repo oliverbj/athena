@@ -47,3 +47,8 @@ COPY ./docker/php/laravel.ini /usr/local/etc/php/conf.d/laravel.ini
 WORKDIR /usr/src/app
 
 RUN chown -R www-data:www-data .
+
+CMD ["php-fpm"]
+
+# Expose port 8010 and start php-fpm server
+EXPOSE 8010

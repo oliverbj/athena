@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: ./docker/php/Dockerfile
     expose:
-      - 9000
+      - 8010
     volumes:
       - .:/usr/src/app
       - ./public:/usr/src/app/public
