@@ -2,10 +2,14 @@ version: '3.8'
 
 services:
   web:
-    image: app-name:latest
     build:
-      target: web
       context: .
+      dockerfile: Dockerfile
+    image: athena-app:latest
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
     environment:
       - APP_NAME=${APP_NAME}
       - APP_ENV=${APP_ENV}
@@ -65,10 +69,6 @@ services:
       - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
       - AZURE_REDIRECT_URI=${AZURE_REDIRECT_URI}
       - AZURE_TENANT_ID=${AZURE_TENANT_ID}
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      - db
 
   nginx:
     image: nginx:latest
@@ -83,15 +83,14 @@ services:
   db:
     platform: "linux/amd64"
     image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "3306:3306"
-    volumes:
-      - dbdata:/var/lib/mysql
-
 volumes:
   dbdata:
