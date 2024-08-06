@@ -1,49 +1,49 @@
 FROM php:8.2-fpm
 
-ARG user
-ARG uid
+# Copy composer.lock and composer.json
+COPY composer.lock composer.json /var/www/
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    supervisor \
-    nginx \
-    build-essential \
-    openssl
-
-# Install PHP extensions
-RUN docker-php-ext-install gd pdo pdo_mysql sockets
-
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
+# Set working directory
 WORKDIR /var/www
 
-# If you need to fix ssl
-COPY ./openssl.cnf /etc/ssl/openssl.cnf
-# If you need add extension create an php.ini file
-#COPY ./php.ini /usr/local/etc/php/php.ini
-COPY composer.json composer.lock ./
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    locales \
+    zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    unzip \
+    git \
+    curl
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Composer dependencies
-RUN composer install --no-dev --no-scripts --prefer-dist --no-interaction
+# Install extensions
+RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
+RUN docker-php-ext-configure gd --with-gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/
+RUN docker-php-ext-install gd
 
-# Copy application files
-COPY . .
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set ownership
-RUN chown -R $uid:$uid /var/www
+# Add user for laravel application
+RUN groupadd -g 1000 www
+RUN useradd -u 1000 -ms /bin/bash -g www www
 
-# Copy supervisor configuration
-COPY ./supervisord.conf /etc/supervisord.conf
+# Copy existing application directory contents
+COPY . /var/www
 
-# Run supervisor
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
+# Copy existing application directory permissions
+COPY --chown=www:www . /var/www
+
+# Change current user to www
+USER www
+
+# Expose port 9000 and start php-fpm server
+EXPOSE 9000
+CMD ["php-fpm"]
