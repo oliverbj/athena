@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  blog_app:
-    container_name: blog_app
+  app:
+    container_name: app
     build:
       context: .
       dockerfile: ./docker/php/Dockerfile
@@ -12,7 +12,7 @@ services:
       - .:/usr/src/app
       - ./public:/usr/src/app/public
     depends_on:
-      - blog_db
+      - db
     networks:
       - laravel
 
