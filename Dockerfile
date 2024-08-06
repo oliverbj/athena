@@ -28,13 +28,15 @@ WORKDIR /var/www
 COPY ./openssl.cnf /etc/ssl/openssl.cnf
 # If you need add extension create an php.ini file
 #COPY ./php.ini /usr/local/etc/php/php.ini
-WORKDIR $WORKDIR
-COPY composer.* ./
-RUN composer install --no-autoloader
-COPY . ./
-RUN composer dump-autoload
+COPY composer.json composer.lock ./
 
-#COPY . .
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN set -eux
+
+RUN composer install --no-dev --no-scripts
+
+COPY . .
 
 RUN chown -R $uid:$uid /var/www
 
