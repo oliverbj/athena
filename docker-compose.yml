@@ -52,6 +52,8 @@ services:
 #            port mappings, host to docker
             - "${NGINX_HOST_HTTPS_PORT}:${NGINX_HOST_HTTPS_PORT}"
             - "${NGINX_HOST_HTTP_PORT}:${NGINX_HOST_HTTP_PORT}"
+        expose:
+            - ${NGINX_HOST_HTTP_PORT}
         networks:
             - sail
 
