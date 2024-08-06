@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
-      - ./.env.production:/var/www/.env
+      - ./.env:/var/www/.env
       - app-data:/var/www
       - ./docker/storage_app:/var/www/storage/app
       - ./docker/php/production.ini:/usr/local/etc/php/conf.d/custom-php.ini
