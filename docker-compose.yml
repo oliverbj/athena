@@ -2,7 +2,7 @@ version: "3"
 
 services:
   app:
-    image: ghcr.io/${{ github.repository_owner }}/myapp:latest
+    image: ghcr.io/oliverbj/athena:latest
     container_name: laravel-app
     restart: unless-stopped
     working_dir: /var/www/
