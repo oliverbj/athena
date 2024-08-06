@@ -1,21 +1,18 @@
 version: "3"
 
 services:
-  app:
-    image: ghcr.io/oliverbj/athena:latest
-    container_name: laravel-app
-    restart: unless-stopped
-    working_dir: /var/www/
+  blog_app:
+    container_name: blog_app
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    expose:
+      - 9000
     volumes:
-      - ./.env:/var/www/.env
-      - app-data:/var/www
-      - ./docker/storage_app:/var/www/storage/app
-      - ./docker/php/production.ini:/usr/local/etc/php/conf.d/custom-php.ini
-      - ./docker/php/docker-fpm.conf:/usr/local/etc/php-fpm.d/www.conf
-      - ./docker/scripts/laravel-worker.conf:/etc/supervisor/conf.d/laravel-worker.conf
-      
+      - .:/usr/src/app
+      - ./public:/usr/src/app/public
     depends_on:
-      - db
+      - blog_db
     networks:
       - laravel
 
@@ -48,17 +45,19 @@ services:
         timeout: 5s
         
   nginx:
-    image: nginx:alpine
-    container_name: laravel-nginx
-    restart: unless-stopped
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    volumes:
+    - ./public:/usr/src/app/public
     ports:
       - 8010:80
-    volumes:
-      - app-data:/var/www
-      - ./docker/storage_app:/var/www/storage/app
-      - ./docker/nginx:/etc/nginx/conf.d/
-      - ./docker/nginx/logs:/var/log/nginx/
-    
+    depends_on:
+      - app
+    environment:
+      NGINX_FPM_HOST: app
+      NGINX_ROOT: /usr/src/app/public
     networks:
       - laravel
 
