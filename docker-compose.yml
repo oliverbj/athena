@@ -1,5 +1,7 @@
 version: '3.8'
-
+networks:
+  laravel:
+    driver: bridge
 services:
   web:
     build:
