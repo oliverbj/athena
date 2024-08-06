@@ -1,46 +1,83 @@
-# Use the official PHP 8.3 image from serversideup
-FROM serversideup/php:8.3-fpm-alpine
+# stage 1: build stage
+FROM php:8.3-fpm-alpine as build
 
-# Set working directory
-WORKDIR /var/www
-
-# Install system dependencies
-# Install dependencies for the operating system software
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    locales \
+# installing system dependencies and php extensions
+RUN apk add --no-cache \
     zip \
-    jpegoptim optipng pngquant gifsicle \
-    vim \
     libzip-dev \
-    unzip \
-    git \
-    libonig-dev \
-    curl
+    freetype \
+    libjpeg-turbo \
+    libpng \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    nodejs \
+    npm \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install zip pdo pdo_mysql \
+    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-enable gd
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# install composer
+COPY --from=composer:2.7.6 /usr/bin/composer /usr/bin/composer
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd xsl zip
+WORKDIR /var/www/html
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# copy necessary files and change permissions
+COPY . .
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Copy existing application directory contents
-COPY . /var/www
+# install php and node.js dependencies
+RUN composer install --no-dev --prefer-dist \
+    && npm install \
+    && npm run build
 
-# Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www
+RUN chown -R www-data:www-data /var/www/html/vendor \
+    && chmod -R 775 /var/www/html/vendor
 
-# Change current user to www
-USER www-data
+# stage 2: production stage
+FROM php:8.3-fpm-alpine
 
-# Start Nginx server
-CMD ["php-fpm"]
+# install nginx
+RUN apk add --no-cache \
+    zip \
+    libzip-dev \
+    freetype \
+    libjpeg-turbo \
+    libpng \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    oniguruma-dev \
+    gettext-dev \
+    freetype-dev \
+    nginx \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install zip pdo pdo_mysql \
+    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-enable gd \
+    && docker-php-ext-install bcmath \
+    && docker-php-ext-enable bcmath \
+    && docker-php-ext-install exif \
+    && docker-php-ext-enable exif \
+    && docker-php-ext-install gettext \
+    && docker-php-ext-enable gettext \
+    && docker-php-ext-install opcache \
+    && docker-php-ext-enable opcache \
+    && rm -rf /var/cache/apk/*
 
-# Expose port 8010
-EXPOSE 8010
+# copy files from the build stage
+COPY --from=build /var/www/html /var/www/html
+COPY ./deploy/nginx.conf /etc/nginx/http.d/default.conf
+COPY ./deploy/php.ini "$PHP_INI_DIR/conf.d/app.ini"
+
+WORKDIR /var/www/html
+
+# add all folders where files are being stored that require persistence. if needed, otherwise remove this line.
+VOLUME ["/var/www/html/storage/app"]
+
+CMD ["sh", "-c", "nginx && php-fpm"]
