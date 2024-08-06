@@ -1,5 +1,5 @@
 # Use the official PHP 8.3 image from serversideup
-FROM serversideup/php:8.3-nginx
+FROM serversideup/php:8.3-fpm-alpine
 
 # Set working directory
 WORKDIR /var/www
@@ -33,15 +33,11 @@ COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www
 
-# Copy environment-specific .env file
-ARG ENVIRONMENT=production
-COPY .env.production.env
-
 # Change current user to www
 USER www-data
 
+# Start Nginx server
+CMD ["php-fpm"]
+
 # Expose port 8010
 EXPOSE 8010
-
-# Start Nginx server
-CMD ["start-container"]
