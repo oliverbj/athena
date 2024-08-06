@@ -16,13 +16,13 @@ services:
     container_name: php_container
     build:
       context: ./docker/php
-    working_dir: /var/www/html/
+    working_dir: /var/www/
     volumes:
-      - .:/var/www/html/
+      - .:/var/www/
       - terminal-history:/root/
       - ./docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
     environment:
-      - WEB_ROOT=/var/www/html/
+      - WEB_ROOT=/var/www/
   webserver:
     restart: unless-stopped
     image: nginx:alpine
@@ -33,10 +33,10 @@ services:
       - 8010:80
       - 443:443
     volumes:
-      - .:/var/www/html/
+      - .:/var/www/
       - ./docker/nginx/default.conf:/etc/nginx/templates/default.conf.template
     environment:
-      - WEB_ROOT=/var/www/html/
+      - WEB_ROOT=/var/www/
   store:
     restart: unless-stopped
     image: redis:alpine
@@ -47,12 +47,12 @@ services:
     container_name: worker_container
     build:
       context: ./docker/php
-    working_dir: /var/www/html/
+    working_dir: /var/www/
     volumes:
-      - .:/var/www/html/
+      - .:/var/www/
       - ./docker/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
     environment:
-      - WEB_ROOT=/var/www/html/
+      - WEB_ROOT=/var/www/
     command: php artisan horizon
 
 
