@@ -1,75 +1,65 @@
-version: "3"
+version: '3.8'
 
 services:
   app:
-    container_name: app
     build:
       context: .
-      dockerfile: ./docker/php/Dockerfile
-    expose:
-      - 8010
+      dockerfile: Dockerfile
+    image: your-app-image
+    container_name: laravel_app
+    restart: unless-stopped
+    ports:
+      - "8010:80"
+    depends_on:
+      - db
+    networks:
+      - laravel
+  db:
+    image: mysql:8.0
+    container_name: laravel_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: athena
+      MYSQL_USER: athena
+      MYSQL_PASSWORD: Cop1973?
+      MYSQL_ROOT_PASSWORD: Cop1973?
+    ports:
+      - "3306:3306"
     volumes:
-      - .:/usr/src/app
-      - ./public:/usr/src/app/public
+      - dbdata:/var/lib/mysql
+    networks:
+      - laravel
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: Cop1973?
+    ports:
+      - "8080:80"
     depends_on:
       - db
     networks:
       - laravel
 
-  db:
-    image: mysql/mysql-server:8.0
-    container_name: laravel-db
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-    volumes:
-      - ./docker/mysql:/docker-entrypoint-initdb.d
-    networks:
-      - laravel
-      
-  redis:
-    image: redis:alpine
-    volumes:
-        - 'laravel-redis:/data'
-    networks:
-        - laravel
-    healthcheck:
-        test:
-            - CMD
-            - redis-cli
-            - ping
-        retries: 3
-        timeout: 5s
-        
-  nginx:
-    container_name: nginx
+  horizon:
     build:
       context: .
-      dockerfile: ./docker/nginx/Dockerfile
-    volumes:
-    - ./public:/usr/src/app/public
-    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    - ./nginx/sites/:/etc/nginx/sites-available
-    - ./nginx/conf.d/:/etc/nginx/conf.d     
-    - ./nginx/log/:/var/log/nginx
-    ports:
-      - 8010:80
+      dockerfile: Dockerfile
+    image: your-horizon-image
+    container_name: laravel_horizon
+    command: php artisan horizon
     depends_on:
       - app
-    environment:
-      NGINX_FPM_HOST: app
-      NGINX_ROOT: /usr/src/app/public
+      - db
     networks:
       - laravel
 
 networks:
   laravel:
     driver: bridge
-    
+
 volumes:
-    laravel-redis:
-        driver: local
-    app-data:
+  dbdata:
