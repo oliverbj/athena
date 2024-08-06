@@ -1,32 +1,47 @@
-# use PHP 8.2
 FROM php:8.2-fpm
 
-# Install common php extension dependencies
+ARG user
+ARG uid
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libfreetype-dev \
-    libjpeg62-turbo-dev \
+    git \
+    curl \
     libpng-dev \
-    zlib1g-dev \
-    libzip-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
     unzip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install zip
+    supervisor \
+    nginx \
+    build-essential \
+    openssl
 
-# Set the working directory
-COPY . /var/www/app
-WORKDIR /var/www/app
+RUN docker-php-ext-install gd pdo pdo_mysql sockets
 
-RUN chown -R www-data:www-data /var/www/app \
-    && chmod -R 775 /var/www/app/storage
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Create system user to run Composer and Artisan Commands
+RUN useradd -G www-data,root -u $uid -d /home/$user $user
+RUN mkdir -p /home/$user/.composer && \
+    chown -R $user:$user /home/$user
 
-# install composer
-COPY --from=composer:2.6.5 /usr/bin/composer /usr/local/bin/composer
+WORKDIR /var/www
 
-# copy composer.json to workdir & install dependencies
-COPY composer.json ./
-RUN composer install
+# If you need to fix ssl
+COPY ./openssl.cnf /etc/ssl/openssl.cnf
+# If you need add extension create an php.ini file
+#COPY ./php.ini /usr/local/etc/php/php.ini
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Set the default command to run php-fpm
-CMD ["php-fpm"]
+COPY . .
+
+RUN chown -R $uid:$uid /var/www
+
+# copy supervisor configuration
+COPY ./supervisord.conf /etc/supervisord.conf
+
+# run supervisor
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
