@@ -27,7 +27,7 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 
 # Install dependencies without scripts
-RUN composer install --no-scripts --no-autoloader --verbose
+RUN composer install --no-scripts --no-autoloader -vvv
 
 # Copy existing application directory contents
 COPY . /var/www/html
