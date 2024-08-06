@@ -18,7 +18,7 @@ services:
       - ./:/var/www
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     ports:
-      - "8010:80"
+      - "8010:8010"
     networks:
       - app-network
 
@@ -64,7 +64,7 @@ services:
     depends_on:
       - db
     environment:
-      PGADMIN_DEFAULT_EMAIL: prasunamudawari@gmail.com
+      PGADMIN_DEFAULT_EMAIL: obj@ntg.com
       PGADMIN_DEFAULT_PASSWORD: password
 
 # Docker Networks
