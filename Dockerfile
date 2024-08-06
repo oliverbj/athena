@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     openssl
 
+# Install PHP extensions
 RUN docker-php-ext-install gd pdo pdo_mysql sockets
 
 # Get latest Composer
@@ -30,18 +31,19 @@ COPY ./openssl.cnf /etc/ssl/openssl.cnf
 #COPY ./php.ini /usr/local/etc/php/php.ini
 COPY composer.json composer.lock ./
 
-
 ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN set -eux
 
-RUN composer install --no-dev --no-scripts
+# Install Composer dependencies
+RUN composer install --no-dev --no-scripts --prefer-dist --no-interaction
 
+# Copy application files
 COPY . .
 
+# Set ownership
 RUN chown -R $uid:$uid /var/www
 
-# copy supervisor configuration
+# Copy supervisor configuration
 COPY ./supervisord.conf /etc/supervisord.conf
 
-# run supervisor
+# Run supervisor
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]
