@@ -51,6 +51,10 @@ services:
       dockerfile: ./docker/nginx/Dockerfile
     volumes:
     - ./public:/usr/src/app/public
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    - ./nginx/sites/:/etc/nginx/sites-available
+    - ./nginx/conf.d/:/etc/nginx/conf.d     
+    - ./nginx/log/:/var/log/nginx
     ports:
       - 8010:80
     depends_on:
