@@ -15,7 +15,7 @@ RUN set -x ; \
     adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
 
 ARG PHP_UPSTREAM_CONTAINER=php-fpm
-ARG PHP_UPSTREAM_PORT=9000
+ARG PHP_UPSTREAM_PORT=8090
 
 # Create 'messages' file used from 'logrotate'
 RUN touch /var/log/messages
