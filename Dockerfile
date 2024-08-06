@@ -1,43 +1,32 @@
-# Use PHP-FPM as the base image
-FROM php:8.2-fpm as web
+# use PHP 8.2
+FROM php:8.2-fpm
 
-# Install system dependencies
+# Install common php extension dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
+    libfreetype-dev \
+    libjpeg62-turbo-dev \
     libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
+    zlib1g-dev \
+    libzip-dev \
+    unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-install zip
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Set the working directory
+COPY . /var/www/app
+WORKDIR /var/www/app
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN chown -R www-data:www-data /var/www/app \
+    && chmod -R 775 /var/www/app/storage
 
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www/html
+# install composer
+COPY --from=composer:2.6.5 /usr/bin/composer /usr/local/bin/composer
 
-# Copy composer files
-COPY composer.json composer.lock ./
+# copy composer.json to workdir & install dependencies
+COPY composer.json ./
+RUN composer install
 
-# Install dependencies without scripts
-RUN composer install --no-scripts --no-autoloader -vvv
-
-# Copy existing application directory contents
-COPY . /var/www/html
-
-# Generate autoloader and run scripts
-RUN composer dump-autoload --optimize && composer run-script post-autoload-dump
-
-# Change current user to www-data
-USER www-data
-
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
+# Set the default command to run php-fpm
 CMD ["php-fpm"]
