@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: cyberduck/php-fpm-laravel(:8.3)
+    image: cyberduck/php-fpm-laravel:8.3
     container_name: app
     restart: unless-stopped
     tty: true
