@@ -3,14 +3,14 @@ FROM php:8.3-fpm
 
 #Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpq-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
+git \
+curl \
+libpq-dev \
+libpng-dev \
+libonig-dev \
+libxml2-dev \
+zip \
+unzip
 
 #Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -31,5 +31,5 @@ RUN composer install
 RUN chown -R www-data:www-data /var/www
 
 # Expose port 9000 and start php-fpm server
-EXPOSE 9000
-CMD ["php-fpm"]
+#EXPOSE 9000
+#CMD ["php-fpm"]
