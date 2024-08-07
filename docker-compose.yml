@@ -2,12 +2,13 @@ version: '3.8'
 
 services:
   laravel.test:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile
     image: ${DOCKER_IMAGE_URL}
     container_name: athena-app
     restart: unless-stopped
+    pull_policy: always
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
