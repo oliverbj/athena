@@ -32,9 +32,6 @@ COPY . /var/www/html
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www/html
 
-# Install Composer dependencies
-RUN composer install
-
 # Change the owner of the application directory to www-data
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
