@@ -5,7 +5,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    image: https://github.com/oliverbj/athena
+    image: ${DOCKER_IMAGE_URL}
     container_name: athena-app
     restart: unless-stopped
     working_dir: /var/www/
