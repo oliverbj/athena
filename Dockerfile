@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.2-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -31,6 +31,6 @@ RUN composer install
 # Change ownership of our applications
 RUN chown -R www-data:www-data /var/www
 
-# Expose port 8010 and start php-fpm server
-EXPOSE 8010
+# Expose port 9000 and start php-fpm server
+EXPOSE 9000
 CMD ["php-fpm"]
