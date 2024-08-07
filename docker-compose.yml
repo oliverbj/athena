@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   laravel.test:
     build:
@@ -16,7 +15,6 @@ services:
       - athena-network
     depends_on:
       - pgsql
-
   nginx:
     image: nginx:alpine
     container_name: athena-nginx
@@ -54,11 +52,9 @@ services:
         - '${DB_USERNAME}'
       retries: 3
       timeout: 5s
-
 networks:
   athena-network:
     driver: bridge
-
 volumes:
   sail-pgsql:
     driver: local
