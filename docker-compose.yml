@@ -13,7 +13,7 @@ services:
         volumes:
             - ./:/var/www
         networks:
-            - network_name
+            - athena-network
         depends_on:
             - pgsql
     nginx:
