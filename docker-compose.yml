@@ -1,10 +1,7 @@
 version: '3.8'
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: athena
+    image: ${DOCKER_IMAGE_URL}
     container_name: athena-app
     restart: unless-stopped
     pull_policy: always
@@ -15,6 +12,8 @@ services:
       - athena-network
     depends_on:
       - pgsql
+    ports:
+      - '${APP_PORT:-8010}:8010'
 
   pgsql:
     image: 'postgres:15'
