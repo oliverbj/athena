@@ -90,3 +90,6 @@ VOLUME ["/var/www/html/storage/app"]
 
 #CMD ["sh", "-c", "nginx && php-fpm"]
 CMD ["php-fpm"]
+
+# Expose port 8010
+EXPOSE 8010
