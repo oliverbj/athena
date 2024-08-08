@@ -4,13 +4,15 @@ services:
   laravel:
     restart: unless-stopped
     container_name: athena-app
-    image: ${DOCKER_IMAGE_URL}
+    #image: ${DOCKER_IMAGE_URL}
+    image: jkaninda/laravel-php-fpm
     #build:
     #  context: .
     #  dockerfile: Dockerfile
     # allocate as many volumes as necessary, if needed.
     volumes:
       - ../storage/app:/var/www/html/storage/app
+      - ./:/var/www/html
     environment:
       APP_NAME: ${APP_NAME}
       APP_ENV: ${APP_ENV}
@@ -23,29 +25,30 @@ services:
       DB_DATABASE: ${DB_DATABASE}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "8010:80"
-    expose:
-      - "8010"
+    #ports:
+    #  - "8010:80"
+    #expose:
+    #  - "8010"
     networks:
       - n-laravel
     depends_on:
       - database
 
-  #nginx:
-  #  image: nginx:alpine
-  #  container_name: nginx
-  #  restart: unless-stopped
-  #  tty: true
-  #  ports:
-  #    - "8010:80"
-  #  volumes:
-  #    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-  #    - .:/var/www/app:delegated
-  #  depends_on:
-  #    - laravel
-  #  networks:
-  #    - n-laravel
+  nginx-server:
+     image: jkaninda/nginx-fpm:alpine
+     container_name: nginx-server
+     restart: unless-stopped
+     ports:
+      - 8010:80
+     volumes:
+     #Project root
+      - ./:/var/www/html
+     environment:
+       - DOCUMENT_ROOT=/var/www/html/public
+       - CLIENT_MAX_BODY_SIZE=20M
+       - PHP_FPM_HOST=php-fpm:8020 
+     networks:
+      - n-laravel
 
   database:
     restart: unless-stopped
