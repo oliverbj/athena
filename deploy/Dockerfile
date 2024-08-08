@@ -27,17 +27,20 @@ WORKDIR /var/www/html
 
 # copy necessary files and change permissions
 COPY . .
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+
+RUN ls
+
+#RUN chown -R www-data:www-data /var/www/html \
+#    && chmod -R 775 /var/www/html/storage \
+#    && chmod -R 775 /var/www/html/bootstrap/cache
 
 # install php and node.js dependencies
 RUN composer install --no-dev --prefer-dist \
     && npm install \
     && npm run build
 
-RUN chown -R www-data:www-data /var/www/html/vendor \
-    && chmod -R 775 /var/www/html/vendor
+#RUN chown -R www-data:www-data /var/www/html/vendor \
+#    && chmod -R 775 /var/www/html/vendor
 
 # stage 2: production stage
 FROM php:8.3-fpm-alpine
