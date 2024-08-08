@@ -43,7 +43,7 @@ services:
     depends_on:
       - php
     networks:
-      - laravel
+      - n-laravel
 
   database:
     restart: unless-stopped
