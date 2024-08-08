@@ -12,7 +12,7 @@ services:
     # allocate as many volumes as necessary, if needed.
     volumes:
       - ../storage/app:/var/www/html/storage/app
-      - ./:/var/www/html
+      - ../:/var/www/html
     environment:
       APP_NAME: ${APP_NAME}
       APP_ENV: ${APP_ENV}
