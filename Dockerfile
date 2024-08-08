@@ -63,11 +63,13 @@ RUN apk add --no-cache \
     gettext-dev \
     freetype-dev \
     nginx \
+    icu-dev \
+    libintl \
     && docker-php-ext-configure zip \
-    && docker-php-ext-install zip pdo pdo_mysql \
+    && docker-php-ext-install zip pdo pdo_mysql intl \
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-enable gd \
+    && docker-php-ext-enable gd intl \
     && docker-php-ext-install bcmath \
     && docker-php-ext-enable bcmath \
     && docker-php-ext-install exif \
