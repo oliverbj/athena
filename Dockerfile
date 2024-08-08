@@ -88,8 +88,7 @@ WORKDIR /var/www/html
 # add all folders where files are being stored that require persistence. if needed, otherwise remove this line.
 VOLUME ["/var/www/html/storage/app"]
 
-#CMD ["sh", "-c", "nginx && php-fpm"]
-CMD ["php-fpm"]
+CMD ["sh", "-c", "nginx && php-fpm"]
 
 # Expose port 8010
 EXPOSE 8010
