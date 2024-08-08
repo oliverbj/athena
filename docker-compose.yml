@@ -1,10 +1,10 @@
 version: '3.8'
 services:
-  laravel.test:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ${DOCKER_IMAGE_URL}
+    image: athena
     container_name: athena-app
     restart: unless-stopped
     pull_policy: always
@@ -22,7 +22,7 @@ services:
     ports:
       - ${APP_PORT:-80}:80
     volumes:
-      - .:/var/www/html
+      - ./app:/var/www/html
       - ./docker/nginx:/etc/nginx/conf.d
     networks:
       - athena-network
