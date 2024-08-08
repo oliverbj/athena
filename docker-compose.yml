@@ -22,7 +22,7 @@ services:
     ports:
       - ${APP_PORT:-80}:80
     volumes:
-      - ./:/var/www/html
+      - .:/var/www/html
       - ./docker/nginx:/etc/nginx/conf.d
     networks:
       - athena-network
