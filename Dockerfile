@@ -34,17 +34,17 @@ RUN ls
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-#RUN chown -R www-data:www-data /var/www/html \
-#    && chmod -R 775 /var/www/html/storage \
-#    && chmod -R 775 /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
 # install php and node.js dependencies
 RUN composer install --no-dev --prefer-dist \
     && npm install \
     && npm run build
 
-#RUN chown -R www-data:www-data /var/www/html/vendor \
-#    && chmod -R 775 /var/www/html/vendor
+RUN chown -R www-data:www-data /var/www/html/vendor \
+    && chmod -R 775 /var/www/html/vendor
 
 # stage 2: production stage
 FROM php:8.3-fpm-alpine
@@ -88,4 +88,5 @@ WORKDIR /var/www/html
 # add all folders where files are being stored that require persistence. if needed, otherwise remove this line.
 VOLUME ["/var/www/html/storage/app"]
 
-CMD ["sh", "-c", "nginx && php-fpm"]
+#CMD ["sh", "-c", "nginx && php-fpm"]
+CMD ["php-fpm"]
