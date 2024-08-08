@@ -1,5 +1,5 @@
-/deploy/docker-compose.yml
-/deploy/Dockerfile
+docker-compose.yml
+Dockerfile
 /.phpunit.cache
 /node_modules
 /public/build

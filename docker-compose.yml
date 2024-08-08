@@ -5,8 +5,8 @@ services:
     restart: unless-stopped
     container_name: laravelapp
     build:
-      context: ../
-      dockerfile: ./deploy/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     # allocate as many volumes as necessary, if needed.
     volumes:
       - ../storage/app:/var/www/html/storage/app
