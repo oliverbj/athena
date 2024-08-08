@@ -1,96 +1,51 @@
+############################################
+# Base Image
+############################################
 
-# stage 1: build stage
-FROM php:8.3-fpm-alpine as build
+# Learn more about the Server Side Up PHP Docker Images at:
+# https://serversideup.net/open-source/docker-php/
+FROM serversideup/php:8.3-fpm-alpine AS base
 
-# installing system dependencies and php extensions
-RUN apk add --no-cache \
-    zip \
-    libzip-dev \
-    freetype \
-    libjpeg-turbo \
-    libpng \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    libpng-dev \
-    nodejs \
-    npm \
-    icu-dev \
-    libintl \
-    && docker-php-ext-configure zip \
-    && docker-php-ext-install zip pdo pdo_mysql \
-    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd intl \
-    && docker-php-ext-enable gd intl
+# Switch to root before installing our PHP extensions
+USER root
+RUN install-php-extensions bcmath gd
 
-# install composer
-COPY --from=composer:2.7.6 /usr/bin/composer /usr/bin/composer
+############################################
+# Development Image
+############################################
+FROM base AS development
 
-WORKDIR /var/www/html
+# We can pass USER_ID and GROUP_ID as build arguments
+# to ensure the www-data user has the same UID and GID
+# as the user running Docker.
+ARG USER_ID
+ARG GROUP_ID
 
-# copy necessary files and change permissions
-COPY . .
+# Switch to root so we can set the user ID and group ID
+USER root
+RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID  && \
+    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
+# Install the intl extension with root permissions
+RUN install-php-extensions intl
 
-RUN ls
+# Switch back to the unprivileged www-data user
+USER www-data
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+############################################
+# CI image
+############################################
+FROM base AS ci
 
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+# Sometimes CI images need to run as root
+# so we set the ROOT user and configure
+# the PHP-FPM pool to run as www-data
+USER root
+RUN echo "user = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-pool.conf && \
+    echo "group = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-pool.conf
 
-# install php and node.js dependencies
-RUN composer install --no-dev --prefer-dist \
-    && npm install \
-    && npm run build
-
-RUN chown -R www-data:www-data /var/www/html/vendor \
-    && chmod -R 775 /var/www/html/vendor
-
-# stage 2: production stage
-FROM php:8.3-fpm-alpine
-
-# install nginx
-RUN apk add --no-cache \
-    zip \
-    libzip-dev \
-    freetype \
-    libjpeg-turbo \
-    libpng \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    libpng-dev \
-    oniguruma-dev \
-    gettext-dev \
-    freetype-dev \
-    nginx \
-    icu-dev \
-    libintl \
-    && docker-php-ext-configure zip \
-    && docker-php-ext-install zip pdo pdo_mysql intl \
-    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-enable gd intl \
-    && docker-php-ext-install bcmath \
-    && docker-php-ext-enable bcmath \
-    && docker-php-ext-install exif \
-    && docker-php-ext-enable exif \
-    && docker-php-ext-install gettext \
-    && docker-php-ext-enable gettext \
-    && docker-php-ext-install opcache \
-    && docker-php-ext-enable opcache \
-    && rm -rf /var/cache/apk/*
-
-# copy files from the build stage
-COPY --from=build /var/www/html /var/www/html
-COPY nginx.conf /etc/nginx/http.d/default.conf
-COPY php.ini "$PHP_INI_DIR/conf.d/app.ini"
-
-WORKDIR /var/www/html
-
-# add all folders where files are being stored that require persistence. if needed, otherwise remove this line.
-VOLUME ["/var/www/html/storage/app"]
-
-CMD ["sh", "-c", "nginx && php-fpm"]
-
-# Expose port 8010
-EXPOSE 8010
+############################################
+# Production Image
+############################################
+FROM base AS deploy
+COPY --chown=www-data:www-data . /var/www/html
+USER www-data

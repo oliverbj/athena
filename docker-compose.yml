@@ -4,13 +4,15 @@ services:
   laravel:
     restart: unless-stopped
     container_name: athena-app
-    image: ${DOCKER_IMAGE_URL}
-    #build:
-    #  context: .
-    #  dockerfile: Dockerfile
-    # allocate as many volumes as necessary, if needed.
+    #image: ${DOCKER_IMAGE_URL}
+    build:
+      context: .
+      args:
+        - USER_ID=1000
+        - GROUP_ID=1000
+      dockerfile: Dockerfile
     volumes:
-      - ../storage/app:/var/www/html/storage/app
+      - .:/var/www/html/:cached
     environment:
       APP_NAME: ${APP_NAME}
       APP_ENV: ${APP_ENV}
