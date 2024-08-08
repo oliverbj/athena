@@ -3,10 +3,11 @@ version: '3.8'
 services:
   laravel:
     restart: unless-stopped
-    container_name: laravelapp
-    build:
-      context: .
-      dockerfile: Dockerfile
+    container_name: athena-app
+    image: ${DOCKER_IMAGE_URL}
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile
     # allocate as many volumes as necessary, if needed.
     volumes:
       - ../storage/app:/var/www/html/storage/app
