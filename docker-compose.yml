@@ -15,17 +15,6 @@ services:
       - athena-network
     depends_on:
       - pgsql
-  nginx:
-    image: nginx:alpine
-    container_name: athena-nginx
-    restart: unless-stopped
-    ports:
-      - ${APP_PORT:-80}:80
-    volumes:
-    #  - ./app:/var/www/html
-      - ./docker/nginx:/etc/nginx/conf.d
-    networks:
-      - athena-network
 
   pgsql:
     image: 'postgres:15'
