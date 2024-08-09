@@ -1,62 +1,55 @@
+############################################
+# Base Image
+############################################
+
+# Learn more about the Server Side Up PHP Docker Images at:
+# https://serversideup.net/open-source/docker-php/
 FROM serversideup/php:8.3-fpm-nginx-alpine AS base
 
+# Switch to root before installing our PHP extensions
 USER root
-RUN install-php-extensions bcmath gd intl
+RUN install-php-extensions bcmath gd
 
-# Ensure PHP-FPM listens on port 9000
-RUN if [ -f /usr/local/etc/php-fpm.d/www.conf ]; then \
-        sed -i 's/listen = 127.0.0.1:8020/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf; \
-    fi
-RUN if [ -f /etc/nginx/http.d/default.conf ]; then \
-        sed -i 's/fastcgi_pass 127.0.0.1:8020/fastcgi_pass 127.0.0.1:9000/' /etc/nginx/http.d/default.conf; \
-    fi
-
-# Set up logging
-RUN touch /var/log/php-fpm.log && chown www-data:www-data /var/log/php-fpm.log
-RUN echo "catch_workers_output = yes" >> /usr/local/etc/php-fpm.d/www.conf \
-    && echo "php_admin_flag[log_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf \
-    && echo "php_admin_value[error_log] = /var/log/php-fpm.log" >> /usr/local/etc/php-fpm.d/www.conf
-
+############################################
+# Development Image
+############################################
 FROM base AS development
 
+# We can pass USER_ID and GROUP_ID as build arguments
+# to ensure the www-data user has the same UID and GID
+# as the user running Docker.
 ARG USER_ID
 ARG GROUP_ID
 
+# Switch to root so we can set the user ID and group ID
 USER root
 RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID  && \
     docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
+    
+# Install the intl extension with root permissions
+RUN install-php-extensions intl
 
+
+# Switch back to the unprivileged www-data user
 USER www-data
 
+############################################
+# CI image
+############################################
+FROM base AS ci
+
+# Sometimes CI images need to run as root
+# so we set the ROOT user and configure
+# the PHP-FPM pool to run as www-data
+USER root
+RUN echo "user = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-pool.conf && \
+    echo "group = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-pool.conf
+
+############################################
+# Production Image
+############################################
 FROM base AS deploy
-
 COPY --chown=www-data:www-data . /var/www/html
-
-# Copy .env.example to .env if .env doesn't exist
-RUN if [ -f /var/www/html/stack.env ] && [ ! -f /var/www/html/.env ]; then \
-        cp /var/www/html/stack.env /var/www/html/.env; \
-    fi
-
-# Set correct permissions
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
+#Make file named "oliver.env"
+RUN touch /var/www/html/oliver.env
 USER www-data
-
-# Install dependencies and optimize
-RUN composer install --no-dev --optimize-autoloader
-
-# Generate application key if not set
-RUN php artisan key:generate --force
-
-# Cache configuration
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
-
-# Create a script to run migrations and start the server
-RUN echo '#!/bin/sh' > /var/www/html/start.sh && \
-    echo 'php artisan migrate --force' >> /var/www/html/start.sh && \
-    echo 'php-fpm' >> /var/www/html/start.sh && \
-    chmod +x /var/www/html/start.sh
-
-CMD ["/var/www/html/start.sh"]

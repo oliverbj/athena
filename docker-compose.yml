@@ -4,9 +4,9 @@ services:
   laravel:
     restart: unless-stopped
     container_name: athena-app
+    #image: ${DOCKER_IMAGE_URL}
     build:
       context: .
-      target: deploy  # Use the deploy stage from the Dockerfile
       args:
         - USER_ID=1000
         - GROUP_ID=1000
@@ -25,8 +25,10 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8080:80"
-    volumes:
-      - ./storage:/var/www/html/storage  # Persist storage
+    expose:
+      - "8080"
+    #networks:
+    #  - n-laravel
     depends_on:
       - database
 
@@ -40,6 +42,12 @@ services:
       MARIADB_USER: ${DB_USERNAME}
       MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
+    #networks:
+    #  - n-laravel
 
 volumes:
   v-database:
+
+#networks:
+#  n-laravel:
+#    driver: bridge
