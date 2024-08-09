@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Pages\Tenancy\EditTeamProfile;
+use App\Filament\App\Pages\Tenancy\RegisterTeam;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -10,6 +12,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+use App\Models\Team;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -19,6 +22,8 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Support\Enums\MaxWidth;
 use App\Filament\App\Widgets\AverageJobProfit;
+use App\Filament\App\Resources\OIPRequestResource\Pages\IncentiveOverview;
+use Filament\Navigation\NavigationItem;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -31,8 +36,21 @@ class AppPanelProvider extends PanelProvider
                 'primary' => Color::Green,
             ])
             ->topNavigation()
+            ->navigationItems([
+
+                NavigationItem::make('Incentive Overview')
+                    ->url(fn (): string => IncentiveOverview::getUrl())
+                    ->icon('heroicon-o-presentation-chart-line')
+                    ->group('Tools')
+                    ->sort(2)
+                    
+            ])
             ->maxContentWidth(MaxWidth::Full)
             ->spa()
+            ->tenant(Team::class)
+            ->tenantRoutePrefix('company')
+            ->tenantRegistration(RegisterTeam::class)
+            ->tenantProfile(EditTeamProfile::class)
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([

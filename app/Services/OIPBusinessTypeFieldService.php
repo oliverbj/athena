@@ -5,7 +5,6 @@ use App\Enums\OIPBusinessType;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 
 
@@ -51,31 +50,40 @@ class OIPBusinessTypeFieldService
                 TextInput::make('destination')->required(),
                 Select::make('mode')
                     ->options([
-                        'Air' => 'Air',
-                        'Sea' => 'Sea',
-                        'Rail' => 'Rail',
-                        'Road' => 'Road',
-                        'Brokerage' => 'Brokerage'
+                        'air' => 'Air',
+                        'sea' => 'Sea',
+                        'rail' => 'Rail',
+                        'road' => 'Road',
+                        'brokerage' => 'Brokerage'
                     ])
                     ->required(),
-                    Textarea::make('comment')
+                Textarea::make('comment')
                     ->label('Comment')
                     ->placeholder('Enter any additional comments')
                     ->maxLength(255)
             ],
             OIPBusinessType::VALUE_ADD_SALE_EXISTING_BUSINESS => [
-                Fieldset::make('Value Add')
-                    ->schema([
-                        Checkbox::make('pickup')->inline(),
-                        Checkbox::make('delivery')->inline(),
-                        Checkbox::make('custom_clearance')->inline(),
-                        Checkbox::make('insurance')->inline(),
-                    ]),
+                TextInput::make('shipment_number')
+                    ->label('Shipment #')
+                    ->placeholder('Enter the CW1 shipment number')
+                    ->required()
+                    ->columns(2),
+
+                Select::make('value_add')
+                    ->options([
+                        'pickup' => 'Pickup',
+                        'delivery' => 'Delivery',
+                        'custom_clearance' => 'Custom Clearance',
+                        'insurance' => 'Insurance',
+                    ])
+                    ->multiple()
+                    ->columns(2),
 
                 Textarea::make('comment')
                     ->label('Comment')
                     ->placeholder('Enter any additional comments')
                     ->maxLength(255)
+                    ->columns(2)
             ],
         };
     }

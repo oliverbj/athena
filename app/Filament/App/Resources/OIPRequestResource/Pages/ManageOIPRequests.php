@@ -21,7 +21,9 @@ class ManageOIPRequests extends ManageRecords
             Actions\CreateAction::make()
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->id();
-                
+                        if($data['business_type'] == OIPBusinessType::NEW_ACCOUNT->value){
+                            $data['mode'] = 'all';
+                        }
                         return $data;
                     })
         ];
