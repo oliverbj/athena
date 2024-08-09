@@ -1,8 +1,7 @@
 version: '3.8'
 
 services:
-  laravel:
-    restart: unless-stopped
+  php:
     container_name: athena-app
     #image: ${DOCKER_IMAGE_URL}
     build:
@@ -27,21 +26,17 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8080:80"
-    expose:
-      - "8080"
-    depends_on:
-      - database
+    
+  #database:
+  #  restart: unless-stopped
+  #  image: mariadb:lts-jammy
+  #  volumes:
+  #    - v-database:/var/lib/mysql
+ #   environment:
+ #     MARIADB_DATABASE: ${DB_DATABASE}
+ #     MARIADB_USER: ${DB_USERNAME}
+ #     MARIADB_PASSWORD: ${DB_PASSWORD}
+ #     MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
 
-  database:
-    restart: unless-stopped
-    image: mariadb:lts-jammy
-    volumes:
-      - v-database:/var/lib/mysql
-    environment:
-      MARIADB_DATABASE: ${DB_DATABASE}
-      MARIADB_USER: ${DB_USERNAME}
-      MARIADB_PASSWORD: ${DB_PASSWORD}
-      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
-
-volumes:
-  v-database:
+#volumes:
+#  v-database:
