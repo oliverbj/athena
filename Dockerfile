@@ -29,6 +29,12 @@ RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID  && \
 # Install the intl extension with root permissions
 RUN install-php-extensions intl
 
+#added:::
+COPY ./nginx.conf /etc/nginx/http.d/default.conf
+# Check if default.conf exists
+RUN ls -l /etc/nginx/http.d/default.conf
+
+
 # Switch back to the unprivileged www-data user
 USER www-data
 
@@ -49,6 +55,4 @@ RUN echo "user = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-p
 ############################################
 FROM base AS deploy
 COPY --chown=www-data:www-data . /var/www/html
-#added:::
-COPY ./nginx.conf /etc/nginx/http.d/default.conf
 USER www-data
