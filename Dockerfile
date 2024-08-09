@@ -6,6 +6,8 @@
 # https://serversideup.net/open-source/docker-php/
 FROM serversideup/php:8.3-fpm-nginx-alpine AS base
 
+COPY --chmod=755 ./entrypoint.d/ /etc/entrypoint.d/
+
 # Switch to root before installing our PHP extensions
 USER root
 RUN install-php-extensions bcmath gd
@@ -50,6 +52,5 @@ RUN echo "user = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-p
 ############################################
 FROM base AS deploy
 COPY --chown=www-data:www-data . /var/www/html
-#Make file named "oliver.env"
-RUN touch /var/www/html/oliver.env
+
 USER www-data
