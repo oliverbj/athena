@@ -33,8 +33,8 @@ FROM base AS deploy
 COPY --chown=www-data:www-data . /var/www/html
 
 # Copy .env.example to .env if .env doesn't exist
-RUN if [ -f /var/www/html/.env.stack ] && [ ! -f /var/www/html/.env ]; then \
-        cp /var/www/html/.env.stack /var/www/html/.env; \
+RUN if [ -f /var/www/html/stack.env ] && [ ! -f /var/www/html/.env ]; then \
+        cp /var/www/html/stack.env /var/www/html/.env; \
     fi
 
 # Set correct permissions
