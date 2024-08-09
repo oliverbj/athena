@@ -65,6 +65,8 @@ class DatabaseSeeder extends Seeder
         return [
             [
                 'user_id' => 1,
+                'branch_id' => 1,
+                'department_id' => 1,
                 'business_type' => 'new_account',
                 'organization_code' => 'JHPACKMAN',
                 'status' => 'rejected',
@@ -78,6 +80,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'user_id' => 1,
+                'branch_id' => 1,
+                'department_id' => 1,
                 'business_type' => 'new_account',
                 'organization_code' => 'JHPACKMAN',
                 'status' => 'pending',
@@ -88,6 +92,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'user_id' => 1,
+                'branch_id' => 1,
+                'department_id' => 1,
                 'business_type' => 'existing_account_new_business',
                 'organization_code' => 'KJSAFCPH',
                 'status' => 'pending',
@@ -101,6 +107,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'user_id' => 1,
+                'branch_id' => 1,
+                'department_id' => 1,
                 'business_type' => 'value_add_sale_existing_business',
                 'organization_code' => 'TEXASSFRA',
                 'status' => 'pending',
@@ -112,6 +120,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'user_id' => 1,
+                'branch_id' => 1,
+                'department_id' => 1,
                 'business_type' => 'new_account',
                 'organization_code' => 'NEWCLIENT1',
                 'status' => 'approved',
@@ -124,6 +134,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'user_id' => 1,
+                'branch_id' => 1,
+                'department_id' => 1,
                 'business_type' => 'existing_account_new_business',
                 'organization_code' => 'EXISTCLIENT2',
                 'status' => 'pending',
@@ -137,6 +149,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'user_id' => 1,
+                'branch_id' => 1,
+                'department_id' => 1,
                 'business_type' => 'value_add_sale_existing_business',
                 'organization_code' => 'VALUECLIENT3',
                 'status' => 'approved',
