@@ -50,5 +50,3 @@ RUN echo "user = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-p
 FROM base AS deploy
 COPY --chown=www-data:www-data . /var/www/html
 USER www-data
-
-EXPOSE 8010
