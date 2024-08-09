@@ -4,15 +4,13 @@ services:
   laravel:
     restart: unless-stopped
     container_name: athena-app
-    image: ${DOCKER_IMAGE_URL}
-    volumes:
-      - ./:/var/www/html
-    #build:
-    #  context: .
-    #  args:
-    #    - USER_ID=1000
-    #    - GROUP_ID=1000
-    # dockerfile: Dockerfile
+    image: ghcr.io/oliverbj/athena:latest
+      #build:
+      #  context: .
+      #  args:
+      #    - USER_ID=1000
+      #    - GROUP_ID=1000
+      # dockerfile: Dockerfile
     environment:
       APP_NAME: ${APP_NAME}
       APP_ENV: ${APP_ENV}
@@ -31,6 +29,8 @@ services:
       - "8080"
     depends_on:
       - database
+    volumes:
+      - /var/www/html # Ensure that the application files are here
 
   database:
     restart: unless-stopped
