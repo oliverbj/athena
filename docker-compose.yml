@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     container_name: athena-app
     image: ${DOCKER_IMAGE_URL}
+    volumes:
+      - ./:/var/www/html
     #build:
     #  context: .
     #  args:
