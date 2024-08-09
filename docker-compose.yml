@@ -27,8 +27,8 @@ services:
       - "8080:80"
     expose:
       - "8080"
-    networks:
-      - n-laravel
+    #networks:
+    #  - n-laravel
     depends_on:
       - database
 
@@ -42,12 +42,12 @@ services:
       MARIADB_USER: ${DB_USERNAME}
       MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
-    networks:
-      - n-laravel
+    #networks:
+    #  - n-laravel
 
 volumes:
   v-database:
 
-networks:
-  n-laravel:
-    driver: bridge
+#networks:
+#  n-laravel:
+#    driver: bridge
