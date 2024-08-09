@@ -4,7 +4,7 @@
 
 # Learn more about the Server Side Up PHP Docker Images at:
 # https://serversideup.net/open-source/docker-php/
-FROM serversideup/php:8.3-fpm-alpine AS base
+FROM serversideup/php:8.3-fpm-nginx-alpine AS base
 
 # Switch to root before installing our PHP extensions
 USER root
@@ -50,3 +50,5 @@ RUN echo "user = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-p
 FROM base AS deploy
 COPY --chown=www-data:www-data . /var/www/html
 USER www-data
+
+EXPOSE 8010
