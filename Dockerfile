@@ -49,6 +49,6 @@ RUN echo "user = www-data" >> /usr/local/etc/php-fpm.d/docker-php-serversideup-p
 ############################################
 FROM base AS deploy
 COPY --chown=www-data:www-data . /var/www/html
-#added:
+#added:::
 COPY ./nginx.conf /etc/nginx/http.d/default.conf
 USER www-data
